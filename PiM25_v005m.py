@@ -43,7 +43,7 @@ from binascii import hexlify
 from PIL import Image, ImageDraw, ImageFont
 import matplotlib.pyplot as plt
 
-import logging    # heyhere
+import logging    # heyhere wow
 
 class BOX(object):
 
