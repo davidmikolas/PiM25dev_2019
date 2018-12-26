@@ -12,3 +12,31 @@ def wow(x):
 ```
 
 hello
+
+asdf
+
+```python
+def wow(x):
+    return nothing
+ ```
+asdf
+```
+def wow(x):
+    return nothing
+ ```
+asdf
+
+Type the name again to see if there is new data
+
+`dht`
+
+or look at its data dictionary
+
+`dht.datadict`
+
+or long form
+
+```
+for key, value in dht.datadict.items():
+    print key, value
+```
