@@ -8,9 +8,186 @@ Once you ahve connected your Pi to your devices as described in the PDF:
 2. Then you can try the predefined fully automatic looping script that will publish your data to LASS.
 
 
-## Walk-through, using a predefined setup script
+To use the module, down load it along with these few auxiliary files to a directory
 
-asdf
+There are three python scripts.
+
+    PiM25.py        The main module with all methods, imports, and thread locks.
+    PiM25_iBox.py   User script to set up your Box and run it interactively.
+    PiM25_Box.py    User script to run your Box in the background
+
+A few more files, depending on your setup.
+
+    PiM25_Box.yaml           Text file with detailed setup for all OLED screens
+    font(s).ttf              since PIL default is very small, use TTFs for larger and Chinese
+    Hello.png (or .jpg, .bmp)   Greeting image for the box on OLED start-up
+
+All methods are accessed through the BOX method. Just for example:
+
+```
+box  = BOX(*args)
+dht  = box.new_DHT22bb('my dht', *args)
+oled = box.new_OLEDi2c('my oled', *args)
+```
+
+## Walk-through, using the predefined setup script PiM25_iBox.py
+
+
+Open a terminal and change to the directory where you have downloaded the files, then run an interactive python session from the terminal:
+
+    $ cd PiM25
+    $ ls
+    $ python -i PiM25_iBox.py
+
+Python logging is saved to a file *and also echoed to the screen* for your viewing pleasure. It will take about a minute to run.
+
+some of the events you will see:
+
+* pigpio and SMBus are started
+* WiFi, internet ping, MQTT connect are checked
+* Sensors, are instantiated and tested
+* OLED is instantiated, screens are setup from a YAML
+* OLED_thread for cycling through the screens is started
+* LASS and DATALOG are instantiated
+
+Once you have the python cursor `> `, you can experiment with the objects.
+
+In order to see the python objects that represent your devices, you can see them in the script you have run, or you can discover them through box instance by using their unique string names that were given at instantiation.
+
+For example, to get a reference to the MCP3008 ADC:
+
+try typing adc
+
+    adc
+
+or create a new reference
+
+    _adc = box.get_device('my adc')
+
+If you want to see all the devices:
+
+    box.devices
+
+or just the readable devices that deliver data:
+
+    box.readables
+
+To read a device
+
+    adc.read()
+
+To read all readable devices
+
+    box.read_all_readables() 
+
+or
+
+
+
+    for device in box.readables:
+        device.read()
+ 
+
+returns something like
+
+[('DHT22bb("my dht") last T: 23.8C H: 95%', 0),
+ ('G3bb("my g3") PM25: 14, PM1: 12, PM10: 15, ', 0),
+ ('GPSbb("my gps")  ', 1),
+ ('Dummy("my dummy gps") No REAL data for this Dummy!', 0),
+ ('MCP3008bb("my adc")  ', 0),
+ ('Analog_Device("my CO2") last voltage: 0.000 last adc_value: 0%', 0),
+ ('Analog_Device("my CO") last voltage: 0.000 last adc_value: 0%', 0),
+ ('Dummy("my gpsdum") No REAL data for this Dummy!', 0),
+ ('Dummy("sys timedate") No REAL data for this Dummy!', 0)]
+
+
+Each device has a name, and if there is any recent good data availabe it will show as well
+
+If anything looks bad you can read again. Often the DHT22 takes time to wake up
+so read again
+
+EITHER OR:
+dht.read()
+box.get_device('my dht').read()
+
+Type the name again to see if there is new data
+
+dht
+
+or look at its data dictionary
+
+dht.datadict
+
+or long form
+
+for key, value in dht.datadict.items():
+    print key, value
+
+
+Now  look at all the screens that were defined in the yaml setup
+
+oled.screens
+
+[SCREEN("GPSmap"),
+ SCREEN("TandH"),
+ SCREEN("particles"),
+ SCREEN("gasses"),
+ SCREEN("GPS")]
+
+You can always get a reference to a screen using its unique string name
+
+s = oled.get_screen('TandH')
+
+s.preview_me() # manual preview on your computer
+
+s.update()  # update the screens information from sensors
+
+s.preview_me() # preview again, to see it change
+
+be a bad person and add fake data to the dht:
+
+dht.datadict['temperature'] = 42
+
+s.preview_me()
+
+it's not there yet, you need to update using one of the following
+
+oled.update_all_screens()
+s.update()
+
+You can even preview all of the screens at the same time
+
+oled.preview_all_screens()  
+
+You can save them as well. In fact you may want to save these regularly so you
+can log into your pi and see the updated screens any time
+
+oled.save_all_screens()
+
+There are two ways to stop the box before quitting python
+
+box.stopall()
+
+WHEN YOU ARE READY, you can stop either part separately at any time
+
+box.disconnect_MQTT()
+oled.stop_thread()
+
+Also, to conserve the lifetime of the OLED display you can turn it on and off
+
+oled.Turn_Off_Display()
+oled.Turn_On_Display()
+
+You can also dim the display to save battery power, and to extend the lifetime
+
+oled.Set_Brigtness(value=100)  # 0 to 255
+
+When you are done, you can type
+
+exit()  to exit Python.
+
+You have to manually shut down your Pi before disconnecting the power.
+
 
 ## Run a predefined AUTOMATIC script with looping
 
@@ -52,40 +229,3 @@ def wow(x):
     return nothing
 ```
 
-
-```python
-def wow(x):
-    print(x)
-    # comment
-    return x + 2
-```
-
-hello
-
-asdf
-
-```python
-def wow(x):
-    return nothing
- ```
-asdf
-```
-def wow(x):
-    return nothing
- ```
-asdf
-
-Type the name again to see if there is new data
-
-`dht`
-
-or look at its data dictionary
-
-`dht.datadict`
-
-or long form
-
-```
-for key, value in dht.datadict.items():
-    print key, value
-```
