@@ -65,9 +65,13 @@ or you can create a new reference for it
     _adc = box.get_device('my adc')
 
 If you want to see all the devices:
+
     box.devices
+
 or just the readable devices that have a `.read()` method:
+
     box.readables
+
 To read one device
 
     adc.read()
@@ -187,41 +191,27 @@ When you are done, you can then type
 
 ## Run a predefined AUTOMATIC script with looping
 
-also 
+$ nohup python PiM25_Box.py &
 
+The `&` is very important, it will allow the script to continue to run if you close the terminal. (If you do this a lot, you can run as a daemon, see for example https://stackoverflow.com/a/2975645 and https://pypi.org/project/python-daemon/)
 
+It will reply with something like this, with the process ID. 
 
-Type the name again to see if there is new data
+    [1] 2429
 
-`dht`
+You can then check the process using
 
-or look at its data dictionary
+    $ ps ax | grep 2429
 
-`dht.datadict`
+If the process is running you will see two lines, the second one can be ignored.
 
-or long form
+     2429 pts/0    Sl     0:01 python PiM25_Box_06.py
+     2565 pts/0    R+     0:00 grep --color=auto 2429
 
-```
-for key, value in dht.datadict.items():
-    print key, value
-```
+The output, including the screen-echoed logging messages or any errors or exceptions are directed to the file
 
-```python
-def wow(x):
-    return nothing
- ```
+     nohup.out
 
-asdf
+The loop is set short so the process will end in a few minutes. You can replace it with an infinite loop if you would like the process to run permanently.
 
-```
-def wow(x):
-    return nothing
-```
-
-asdf
-
-```
-def wow(x):
-    return nothing
-```
 
