@@ -65,13 +65,9 @@ or you can create a new reference for it
     _adc = box.get_device('my adc')
 
 If you want to see all the devices:
-
     box.devices
-
 or just the readable devices that have a `.read()` method:
-
     box.readables
-
 To read one device
 
     adc.read()
