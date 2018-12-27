@@ -56,11 +56,11 @@ In order to see the python objects that represent your devices, you can see them
 
 For example, to get a reference to the MCP3008 ADC:
 
-try typing adc
+try typing adc (as it is called in the script)
 
     adc
 
-or create a new reference
+or you can create a new reference for it
 
     _adc = box.get_device('my adc')
 
@@ -68,11 +68,11 @@ If you want to see all the devices:
 
     box.devices
 
-or just the readable devices that deliver data:
+or just the readable devices that have a `.read()` method:
 
     box.readables
 
-To read a device
+To read one device
 
     adc.read()
 
@@ -80,16 +80,15 @@ To read all readable devices
 
     box.read_all_readables() 
 
-or
-
-
+or you can do it with a few lines yourself
 
     for device in box.readables:
         device.read()
  
 
-returns something like
+Either way, it returns something like
 
+```
 [('DHT22bb("my dht") last T: 23.8C H: 95%', 0),
  ('G3bb("my g3") PM25: 14, PM1: 12, PM10: 15, ', 0),
  ('GPSbb("my gps")  ', 1),
@@ -99,94 +98,95 @@ returns something like
  ('Analog_Device("my CO") last voltage: 0.000 last adc_value: 0%', 0),
  ('Dummy("my gpsdum") No REAL data for this Dummy!', 0),
  ('Dummy("sys timedate") No REAL data for this Dummy!', 0)]
+```
 
+Each device has a name, and if there is any recent good data availabe it will show as well If anything looks bad you can read again. Often the DHT22 takes time to wake up when you first start your box, so read again using either
 
-Each device has a name, and if there is any recent good data availabe it will show as well
-
-If anything looks bad you can read again. Often the DHT22 takes time to wake up
-so read again
-
-EITHER OR:
-dht.read()
-box.get_device('my dht').read()
+    dht.read()
+or 
+    box.get_device('my dht').read()
 
 Type the name again to see if there is new data
 
-dht
+    dht
 
 or look at its data dictionary
 
-dht.datadict
+    dht.datadict
 
-or long form
+in long form
 
-for key, value in dht.datadict.items():
-    print key, value
+    for key, value in dht.datadict.items():
+        print key, value
 
 
-Now  look at all the screens that were defined in the yaml setup
+Now look at all the screens that were defined in the yaml setup
 
-oled.screens
+    oled.screens
 
+```
 [SCREEN("GPSmap"),
  SCREEN("TandH"),
  SCREEN("particles"),
  SCREEN("gasses"),
  SCREEN("GPS")]
+ ```
 
 You can always get a reference to a screen using its unique string name
 
-s = oled.get_screen('TandH')
+    s = oled.get_screen('TandH')
+    s.preview_me() # manual preview on your computer
 
-s.preview_me() # manual preview on your computer
+or just
 
-s.update()  # update the screens information from sensors
+    oled.get_screen('TandH').preview_me()
+and then
 
-s.preview_me() # preview again, to see it change
+    s.update()  # update the screens with newest data from sensors
+    s.preview_me() # preview again, to see it change
 
-be a bad person and add fake data to the dht:
+You can be a "bad person" and add fake data to the dht:
 
-dht.datadict['temperature'] = 42
+    dht.datadict['temperature'] = 42
+    s.preview_me()
 
-s.preview_me()
+it won't show until you update the screen using either
 
-it's not there yet, you need to update using one of the following
+    oled.update_all_screens()
 
-oled.update_all_screens()
-s.update()
+or
 
-You can even preview all of the screens at the same time
+    s.update()
 
-oled.preview_all_screens()  
+You can even preview all of the screens at the same time, and even save the image
 
-You can save them as well. In fact you may want to save these regularly so you
-can log into your pi and see the updated screens any time
+    oled.preview_all_screens()  
+    oled.save_all_screens()
 
-oled.save_all_screens()
+In fact you may want to save these regularly so you can log into your pi and see the updated screens any time
 
-There are two ways to stop the box before quitting python
+*When you are finished* there are two ways to stop the box before quitting python
 
-box.stopall()
+    box.stopall()
 
-WHEN YOU ARE READY, you can stop either part separately at any time
-
-box.disconnect_MQTT()
-oled.stop_thread()
+or 
+    box.disconnect_MQTT()
+    oled.stop_thread()
 
 Also, to conserve the lifetime of the OLED display you can turn it on and off
 
-oled.Turn_Off_Display()
-oled.Turn_On_Display()
+    oled.Turn_Off_Display()
+    oled.Turn_On_Display()
 
 You can also dim the display to save battery power, and to extend the lifetime
 
-oled.Set_Brigtness(value=100)  # 0 to 255
+    oled.Set_Brigtness(value=100)  # 0 to 255
 
-When you are done, you can type
+When you are done, you can then type
 
-exit()  to exit Python.
+    exit()  # to exit Python.
 
-You have to manually shut down your Pi before disconnecting the power.
+**You have to manually shut down your Pi before disconnecting the power.**
 
 
 ## Run a predefined AUTOMATIC script with looping
