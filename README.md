@@ -22,6 +22,10 @@ A few more files, depending on your setup.
     font(s).ttf              since PIL default is very small, use TTFs for larger and Chinese
     Hello.png (or .jpg, .bmp)   Greeting image for the box on OLED start-up
 
+There are also some helpful files for reverence, such as
+
+    PiM25_14_Generic_Device.py          Template for writng a new class for a new sensor or device
+
 All methods are accessed through the BOX method. Just for example:
 
 ```
@@ -182,7 +186,56 @@ You can also dim the display to save battery power, and to extend the lifetime
 
     oled.Set_Brigtness(value=100)  # 0 to 255
 
+Here is an example of how to cusomize and design your own OLED screens and TEXTFIELD objects:
+
+```
+from PiM25 import BOX
+
+# create your BOX object, all other objects are instantiated from it.
+box       = BOX('my box')
+
+# make a dummy device to hold some sample data
+dummydict = {'x':42, 'y':777}
+dummy     = box.new_Dummy('my dummy', dummydict)
+
+# add an OLED object
+oled      = box.new_OLEDi2c('my oled', rotate180=True)
+
+oled.initiate() 
+oled.Turn_On_Display()
+
+oled.show_image('hello.png', resize_method='fit',
+                conversion_method='threshold', threshold=60)
+
+# add a SCREEN object to oled
+screen    = oled.new_screen ('my screen')
+
+# add a FIELD object to screen
+field_x   = screen.new_textfield('my field x', xy0=(20,10), wh=(100,20),
+                                fmt='x={}',fontdef='default',
+                                fontsize=None, threshold=None,
+                                info=[['my dummy', 'x']])
+
+dummy.read()        # fills the datadict
+
+field_x.update()
+field_x.preview_me()
+
+# add a second FIELD object to screen
+field_y   = screen.new_textfield('my field y', xy0=(20,30), wh=(100,20),
+                                fmt='y={} wow!',fontdef='default',
+                                fontsize=None, threshold=None,
+                                info=[['my dummy', 'y']])
+
+screen.update()
+screen.preview_me()
+```
+
 When you are done, you can then type
+
+    box.stopall()
+    
+After everything is shut down and the OLED thread has stopped, you can exit Python:
 
     exit()  # to exit Python.
 
