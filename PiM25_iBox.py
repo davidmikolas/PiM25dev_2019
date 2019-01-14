@@ -78,7 +78,7 @@ rtc  = box.new_RTC_smbus("my rtc")
 
 # start the OLED display
 oled      = box.new_OLEDi2c('my oled', rotate180=True)
-oled.YAMLsetup('PiM25_Box_15.yaml')    
+oled.YAMLsetup('PiM25_Box.yaml')    
 oled.initiate() 
 oled.Turn_On_Display()
 for thing in ('show_white', 'show_black', 'show_gray'):
